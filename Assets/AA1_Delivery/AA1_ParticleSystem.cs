@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine.Assertions.Must;
+using UnityEngine.Rendering.VirtualTexturing;
 using static AA1_ParticleSystem;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
@@ -24,19 +27,11 @@ public class AA1_ParticleSystem
         public bool randomDirection;
         public float maxForce;
         public float minForce;
-        public float maxParticlesPerSecond;
         public float minParticlesPerSecond;
+        public float maxParticlesPerSecond;
         public float maxParticlesLife;
         public float minParticlesLife;
-        private float delta;
-        public void SetDelta(float dt)
-        {
-            delta = dt;
-        }
-        public float GetDelta()
-        {
-            return delta;
-        }
+        public float particleBatch;
     }
     public SettingsCascade settingsCascade;
 
@@ -52,16 +47,7 @@ public class AA1_ParticleSystem
         public float minParticlesPerSecond;
         public float maxParticlesLife;
         public float minParticlesLife;
-
-        private float delta;
-        public void SetDelta(float dt)
-        {
-            delta = dt;
-        }
-        public float GetDelta()
-        {
-            return delta;
-        }
+        public float particleBatch;
     }
     public SettingsCannon settingsCannon;
 
@@ -96,14 +82,13 @@ public class AA1_ParticleSystem
 
     }
 
-   
-
-    Random rnd = new Random(); 
-    Particle[] particles = new Particle[1000];
-
+    System.Random rnd = new System.Random(); 
+    Particle[] particles;
 
     public Particle[] Update(float dt)
     {
+        Initialize();
+
 
         CascadeSpawner(dt);
         CannonSpawner(dt);
@@ -114,92 +99,96 @@ public class AA1_ParticleSystem
             
         return particles;
     }
+    private void Initialize()
+    {
+        if (particles != null)
+            return;
+
+        particles = new Particle[settings.particlePoolCapacity];
+
+    }
+
     private void CascadeSpawner(float dt)
     {
-        settingsCascade.SetDelta(settingsCascade.GetDelta() + dt);
+        settingsCascade.particleBatch += RandomRangeFloats(settingsCascade.minParticlesPerSecond, settingsCascade.maxParticlesPerSecond) * dt; ;
 
-        if (settingsCascade.GetDelta() >= 1)
+
+        for (int j = 0; j < particles.Length; j++)
         {
-            settingsCascade.SetDelta(0);
-            int particlesPerSecond = (int)RandomRangeFloats(settingsCascade.minParticlesPerSecond, settingsCascade.maxParticlesPerSecond); 
-            for (int i = 0; i < particlesPerSecond; i++)
+            if (particles[j].active)
+                continue;
+
+
+            if (settingsCascade.particleBatch < 1)
+                break;
+
+            particles[j].active = true;
+            float randomForce = RandomRangeFloats(settingsCascade.minForce, settingsCascade.maxForce);
+            Vector3C dir;
+            if (settingsCascade.randomDirection)
             {
-                for (int j = 0; j < particles.Length; j++)
-                {
-                    if (!particles[j].active)
-                    {
-                        particles[j].active = true;
-                        float randomForce = RandomRangeFloats(settingsCascade.minForce, settingsCascade.maxForce);
-                        Vector3C dir;
-                        if (settingsCascade.randomDirection)
-                        {
-                            float randomX = RandomRangeFloats(-1, 1);
-                            float randomY = RandomRangeFloats(-1, 1);
-                            float randomZ = RandomRangeFloats(-1, 1);
+                float randomX = RandomRangeFloats(-1, 1);
+                float randomY = RandomRangeFloats(-1, 1);
+                float randomZ = RandomRangeFloats(-1, 1);
 
-                            dir = new Vector3C(randomX, randomY, randomZ) * randomForce;
-                        }
-                        else
-                            dir = settingsCascade.direction * randomForce; 
-                        
-                        particles[j].AddForce(dir, settings.gravity);
-                        
-                        float randomLifeTime = RandomRangeFloats(settingsCascade.minParticlesLife, settingsCascade.maxParticlesLife);
-                        particles[j].lifeTime = randomLifeTime;
-
-                        Vector3C randPoint = settingsCascade.PointA + (settingsCascade.PointB - settingsCascade.PointA) * (float)rnd.NextDouble();
-                        particles[j].position = randPoint;
-
-                        break;
-                    }
-                }
+                dir = new Vector3C(randomX, randomY, randomZ).normalized * randomForce;
             }
+            else
+                dir = settingsCascade.direction * randomForce;
 
-            
+            particles[j].AddForce(dir, settings.gravity);
 
+            float randomLifeTime = RandomRangeFloats(settingsCascade.minParticlesLife, settingsCascade.maxParticlesLife);
+            particles[j].lifeTime = randomLifeTime;
+
+            Vector3C randPoint = settingsCascade.PointA + (settingsCascade.PointB - settingsCascade.PointA) * (float)rnd.NextDouble();
+            particles[j].position = randPoint;
+
+            settingsCascade.particleBatch--;
         }
+            
     }
     private void CannonSpawner(float dt)
     {
-        settingsCannon.SetDelta(settingsCannon.GetDelta() + dt);
 
-        if (settingsCannon.GetDelta() >= 1)
+        settingsCannon.particleBatch += RandomRangeFloats(settingsCannon.minParticlesPerSecond, settingsCannon.maxParticlesPerSecond) * dt; ;
+
+
+        for (int j = 0; j < particles.Length; j++)
         {
-            settingsCannon.SetDelta(0);
-            int particlesPerSecond = (int)RandomRangeFloats(settingsCannon.minParticlesPerSecond, settingsCannon.maxParticlesPerSecond);
-            for (int i = 0; i < particlesPerSecond; i++)
+            if (particles[j].active)
+                continue;
+
+
+            if (settingsCannon.particleBatch < 1)
+                break;
+
+            particles[j].active = true;
+            float randomForce = RandomRangeFloats(settingsCannon.minForce, settingsCannon.maxForce);
+            Vector3C dir;
+            //Valor inicial para el dot (no es valor final)
+            float dot = -100;
+            do
             {
-                for (int j = 0; j < particles.Length; j++)
-                {
-                    if (!particles[j].active)
-                    {
-                        particles[j].active = true;
-                        float randomForce = RandomRangeFloats(settingsCannon.minForce, settingsCannon.maxForce);
-                        Vector3C dir;
-                        
-                        do
-                        {
-                            float randomX = RandomRangeFloats(-1, 1);
-                            float randomY = RandomRangeFloats(-1, 1);
-                            float randomZ = RandomRangeFloats(-1, 1);
-                            dir = new Vector3C(randomX, randomY, randomZ);
+                float randomX = RandomRangeFloats(-1, 1);
+                float randomY = RandomRangeFloats(-1, 1);
+                float randomZ = RandomRangeFloats(-1, 1);
+                dir = new Vector3C(randomX, randomY, randomZ).normalized;
 
-                        } while (Vector3C.Dot(settingsCannon.Direction, dir) > settingsCannon.angle);
+                dot = Vector3C.Dot(settingsCannon.Direction.normalized, dir);
 
-                        particles[j].AddForce(dir, settings.gravity);
+            } while (dot < settingsCannon.angle);
 
-                        float randomLifeTime = RandomRangeFloats(settingsCannon.minParticlesLife, settingsCannon.maxParticlesLife);
-                        particles[j].lifeTime = randomLifeTime;
+            particles[j].AddForce(dir * randomForce, settings.gravity);
 
-                        particles[j].position = settingsCannon.Start;
-                        break;
-                    }
-                }
-            }
+            float randomLifeTime = RandomRangeFloats(settingsCannon.minParticlesLife, settingsCannon.maxParticlesLife);
+            particles[j].lifeTime = randomLifeTime;
 
+            particles[j].position = settingsCannon.Start;
 
-
+            settingsCannon.particleBatch--;
         }
+
     }
 
     private void SolverEuler(float dt)
@@ -209,7 +198,7 @@ public class AA1_ParticleSystem
             if (!particles[i].active)
             {
                 particles[i].position = new Vector3C(1000,1000, 1000);
-                particles[i].size = 0.1f;
+                particles[i].size = 0.025f;
                 particles[i].velocity = Vector3C.zero;
                 particles[i].mass = 1;
             }

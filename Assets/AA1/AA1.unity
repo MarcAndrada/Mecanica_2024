@@ -164,7 +164,7 @@ MonoBehaviour:
         y: -9.8
         z: 0
       bounce: 0
-      particlePoolCapacity: 0
+      particlePoolCapacity: 10000
     settingsCascade:
       PointA:
         x: -0.5
@@ -175,16 +175,17 @@ MonoBehaviour:
         y: 0
         z: 0
       direction:
-        x: 10
+        x: 0
         y: 0
         z: 0
       randomDirection: 0
       maxForce: 20
       minForce: 5
-      maxParticlesPerSecond: 5
       minParticlesPerSecond: 2
-      maxParticlesLife: 15
-      minParticlesLife: 5
+      maxParticlesPerSecond: 10
+      maxParticlesLife: 2
+      minParticlesLife: 1
+      particleBatch: 0
     settingsCannon:
       Start:
         x: 0
@@ -194,13 +195,14 @@ MonoBehaviour:
         x: 0
         y: 0
         z: 0
-      angle: 0.6
-      maxForce: 30
+      angle: 0.99
+      maxForce: 20
       minForce: 20
-      maxParticlesPerSecond: 10
-      minParticlesPerSecond: 6
+      maxParticlesPerSecond: 200
+      minParticlesPerSecond: 100
       maxParticlesLife: 10
       minParticlesLife: 8
+      particleBatch: 0
     settingsCollision:
       planes:
       - position:
@@ -308,7 +310,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 251018374}
   m_LocalRotation: {x: -0.27990237, y: -0, z: -0, w: 0.9600285}
-  m_LocalPosition: {x: 0.534, y: -0, z: 1.029}
+  m_LocalPosition: {x: 1.83, y: -0.12, z: 0.83}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
