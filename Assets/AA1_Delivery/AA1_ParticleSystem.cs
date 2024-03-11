@@ -57,6 +57,7 @@ public class AA1_ParticleSystem
         public PlaneC[] planes;
         public SphereC[] spheres;
         public CapsuleC[] capsules;
+        public float collisionFactor;
     }
     public SettingsCollision settingsCollision;
 
@@ -74,6 +75,7 @@ public class AA1_ParticleSystem
         public float mass;
         public bool active;
         public float lifeTime;
+        public Vector3C lastPosition;
         public void AddForce(Vector3C force, Vector3C gravity)
         {
             acceleration = force / mass;
@@ -197,15 +199,31 @@ public class AA1_ParticleSystem
         {
             if (!particles[i].active)
             {
-                particles[i].position = new Vector3C(1000,1000, 1000);
+                particles[i].position = new Vector3C(1000, 1000, 1000);
                 particles[i].size = 0.025f;
                 particles[i].velocity = Vector3C.zero;
                 particles[i].mass = 1;
             }
             else
             {
+                particles[i].lastPosition = particles[i].position;
                 particles[i].velocity += particles[i].acceleration * dt;
                 particles[i].position += particles[i].velocity * dt;
+                CheckCollisions(i);
+            }
+        }
+    }
+
+    private void CheckCollisions(int index)
+    {
+        for (int i = 0; i < settingsCollision.planes.Length; i++)
+        {
+            if (settingsCollision.planes[i].DistanceToPoint(particles[index].position) <= settingsCollision.collisionFactor)
+            {
+                float n = (particles[index].velocity * settingsCollision.planes[i].normal) / settingsCollision.planes[i].normal.magnitude;
+                Vector3C normalVelocity = settingsCollision.planes[i].normal * n;
+                Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
+                particles[index].velocity = -normalVelocity + tangentVelocity;
             }
         }
     }

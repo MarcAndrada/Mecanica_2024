@@ -51,7 +51,7 @@ public struct PlaneC
     #region METHODS
     public (float A, float B, float C, float D) ToEquation()
     {
-        return (normal.x, normal.y, normal.z, -position.x * normal.x);
+        return (normal.x, normal.y, normal.z, -Vector3C.Dot(normal, position));
     }
 
     public Vector3C NearestPoint(Vector3C point)
@@ -65,11 +65,23 @@ public struct PlaneC
         return point - proyection;
     }
 
-    public Vector3C IntersectionWithLine()
+    public Vector3C IntersectionWithLine(LineC line)
     {
-        return new Vector3C();
+        float distance = Vector3C.Dot(normal, position - line.origin) / Vector3C.Dot(normal, line.direction);
+        return line.origin + line.direction * distance;
     }
 
+    public float DistanceToPoint(Vector3C point)
+    {
+        float equation = ToEquation().A * point.x + ToEquation().B * point.y + ToEquation().C * point.z + ToEquation().D;
+
+        if (normal.magnitude == 0) 
+        {
+            return 0;
+        }
+
+        return Math.Abs(equation) / normal.magnitude;
+    }
     #endregion
 
     #region FUNCTIONS
