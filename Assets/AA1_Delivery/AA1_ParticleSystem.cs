@@ -72,15 +72,11 @@ public class AA1_ParticleSystem
         public float size;
         public Vector3C velocity;
         public Vector3C acceleration;
+        public Vector3C forces;
         public float mass;
         public bool active;
         public float lifeTime;
         public Vector3C lastPosition;
-        public void AddForce(Vector3C force, Vector3C gravity)
-        {
-            acceleration = force / mass;
-            acceleration += gravity;
-        }
 
     }
 
@@ -114,7 +110,6 @@ public class AA1_ParticleSystem
     {
         settingsCascade.particleBatch += RandomRangeFloats(settingsCascade.minParticlesPerSecond, settingsCascade.maxParticlesPerSecond) * dt; ;
 
-
         for (int j = 0; j < particles.Length; j++)
         {
             if (particles[j].active)
@@ -137,7 +132,7 @@ public class AA1_ParticleSystem
             else
                 dir = settingsCascade.direction * randomForce;
 
-            particles[j].AddForce(dir, settings.gravity);
+            particles[j].forces = dir + settings.gravity;
 
             float randomLifeTime = RandomRangeFloats(settingsCascade.minParticlesLife, settingsCascade.maxParticlesLife);
             particles[j].lifeTime = randomLifeTime;
@@ -177,7 +172,7 @@ public class AA1_ParticleSystem
 
             } while (dot < settingsCannon.angle);
 
-            particles[j].AddForce(dir * randomForce, settings.gravity);
+            particles[j].forces = dir * randomForce;
 
             float randomLifeTime = RandomRangeFloats(settingsCannon.minParticlesLife, settingsCannon.maxParticlesLife);
             particles[j].lifeTime = randomLifeTime;
@@ -202,8 +197,11 @@ public class AA1_ParticleSystem
             {
                 particles[i].lastPosition = particles[i].position;
 
+                particles[i].acceleration = (particles[i].forces / particles[i].mass) + settings.gravity;
                 particles[i].velocity += particles[i].acceleration * dt;
                 particles[i].position += particles[i].velocity * dt;
+
+                particles[i].forces = Vector3C.zero;
 
                 CheckCollisions(i);
             }
@@ -213,8 +211,15 @@ public class AA1_ParticleSystem
     {
         for (int i = 0; i < settingsCollision.planes.Length; i++)
         {
-            if (settingsCollision.planes[i].DistanceToPoint(particles[index].position) <= settingsCollision.collisionFactor)
+            double distance;
+
+            Vector3C Vector = particles[index].position - settingsCollision.planes[i].position;
+            distance = Vector3C.Dot(settingsCollision.planes[i].normal, Vector);
+
+            if (distance < 0)
             {
+                particles[index].position = settingsCollision.planes[i].IntersectionWithLine(new LineC(particles[index].lastPosition, particles[index].position));
+
                 float n = (particles[index].velocity * settingsCollision.planes[i].normal) / settingsCollision.planes[i].normal.magnitude;
                 Vector3C normalVelocity = settingsCollision.planes[i].normal * n;
                 Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
