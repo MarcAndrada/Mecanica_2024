@@ -75,9 +75,9 @@ public struct PlaneC
     {
         float equation = ToEquation().A * point.x + ToEquation().B * point.y + ToEquation().C * point.z + ToEquation().D;
 
-        if (normal.magnitude == 0) 
+        if (normal.magnitude == 0.0f) 
         {
-            return 0;
+            return 0.0f;
         }
 
         return Math.Abs(equation) / normal.magnitude;

@@ -120,7 +120,6 @@ public class AA1_ParticleSystem
             if (particles[j].active)
                 continue;
 
-
             if (settingsCascade.particleBatch < 1)
                 break;
 
@@ -152,15 +151,12 @@ public class AA1_ParticleSystem
     }
     private void CannonSpawner(float dt)
     {
-
         settingsCannon.particleBatch += RandomRangeFloats(settingsCannon.minParticlesPerSecond, settingsCannon.maxParticlesPerSecond) * dt; ;
-
 
         for (int j = 0; j < particles.Length; j++)
         {
             if (particles[j].active)
                 continue;
-
 
             if (settingsCannon.particleBatch < 1)
                 break;
@@ -190,9 +186,7 @@ public class AA1_ParticleSystem
 
             settingsCannon.particleBatch--;
         }
-
     }
-
     private void SolverEuler(float dt)
     {
         for (int i = 0; i < particles.Length; ++i)
@@ -207,13 +201,14 @@ public class AA1_ParticleSystem
             else
             {
                 particles[i].lastPosition = particles[i].position;
+
                 particles[i].velocity += particles[i].acceleration * dt;
                 particles[i].position += particles[i].velocity * dt;
+
                 CheckCollisions(i);
             }
         }
     }
-
     private void CheckCollisions(int index)
     {
         for (int i = 0; i < settingsCollision.planes.Length; i++)
@@ -227,7 +222,6 @@ public class AA1_ParticleSystem
             }
         }
     }
-
     private void DisableParticles(float dt)
     {
         for (int i = 0; i < particles.Length; i++)

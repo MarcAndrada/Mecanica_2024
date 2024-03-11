@@ -181,8 +181,8 @@ MonoBehaviour:
       randomDirection: 0
       maxForce: 20
       minForce: 5
-      minParticlesPerSecond: 5
-      maxParticlesPerSecond: 10
+      minParticlesPerSecond: 0
+      maxParticlesPerSecond: 0
       maxParticlesLife: 5
       minParticlesLife: 2
       particleBatch: 0
@@ -198,8 +198,8 @@ MonoBehaviour:
       angle: 0.99
       maxForce: 20
       minForce: 20
-      maxParticlesPerSecond: 0
-      minParticlesPerSecond: 0
+      maxParticlesPerSecond: 5
+      minParticlesPerSecond: 5
       maxParticlesLife: 10
       minParticlesLife: 8
       particleBatch: 0
@@ -342,14 +342,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 251018374}
-  m_LocalRotation: {x: -0.27990237, y: -0, z: -0, w: 0.9600285}
-  m_LocalPosition: {x: 1.83, y: -0.12, z: 0.83}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.035, y: -0.12, z: -0.111}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 83351503}
   m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: -32.509, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &498822787
 GameObject:
   m_ObjectHideFlags: 0
