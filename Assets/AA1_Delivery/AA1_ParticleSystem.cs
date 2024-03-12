@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine.Assertions.Must;
-using UnityEngine.Rendering.VirtualTexturing;
-using static AA1_ParticleSystem;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+
+using UnityEngine.UIElements;
 
 [System.Serializable]
 public class AA1_ParticleSystem
@@ -25,12 +20,12 @@ public class AA1_ParticleSystem
         public Vector3C PointB;
         public Vector3C direction;
         public bool randomDirection;
-        public float maxForce;
         public float minForce;
+        public float maxForce;
         public float minParticlesPerSecond;
         public float maxParticlesPerSecond;
-        public float maxParticlesLife;
         public float minParticlesLife;
+        public float maxParticlesLife;
         public float particleBatch;
     }
     public SettingsCascade settingsCascade;
@@ -77,7 +72,6 @@ public class AA1_ParticleSystem
         public bool active;
         public float lifeTime;
         public Vector3C lastPosition;
-
     }
 
     System.Random rnd = new System.Random(); 
@@ -158,11 +152,14 @@ public class AA1_ParticleSystem
 
             particles[j].active = true;
             float randomForce = RandomRangeFloats(settingsCannon.minForce, settingsCannon.maxForce);
+
             Vector3C dir;
-            //Valor inicial para el dot (no es valor final)
-            float dot = -100;
+            float dot;
+
+            settingsCannon.angle %= 360;
             do
             {
+
                 float randomX = RandomRangeFloats(-1, 1);
                 float randomY = RandomRangeFloats(-1, 1);
                 float randomZ = RandomRangeFloats(-1, 1);
@@ -170,7 +167,7 @@ public class AA1_ParticleSystem
 
                 dot = Vector3C.Dot(settingsCannon.Direction.normalized, dir);
 
-            } while (dot < settingsCannon.angle);
+            } while (dot < 1 - (settingsCannon.angle / 360));
 
             particles[j].forces = dir * randomForce;
 
@@ -210,7 +207,7 @@ public class AA1_ParticleSystem
     private void CheckCollisions(int index)
     {
         for (int i = 0; i < settingsCollision.planes.Length; i++)
-        {
+        {/*
             double distance;
 
             Vector3C Vector = particles[index].position - settingsCollision.planes[i].position;
@@ -225,6 +222,7 @@ public class AA1_ParticleSystem
                 Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
                 particles[index].velocity = -normalVelocity + tangentVelocity;
             }
+            */
         }
     }
     private void DisableParticles(float dt)

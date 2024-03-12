@@ -179,12 +179,12 @@ MonoBehaviour:
         y: 0
         z: 0
       randomDirection: 0
-      maxForce: 20
       minForce: 5
-      minParticlesPerSecond: 5
-      maxParticlesPerSecond: 10
-      maxParticlesLife: 5
+      maxForce: 20
+      minParticlesPerSecond: 0
+      maxParticlesPerSecond: 0
       minParticlesLife: 2
+      maxParticlesLife: 5
       particleBatch: 0
     settingsCannon:
       Start:
@@ -195,13 +195,13 @@ MonoBehaviour:
         x: 0
         y: 0
         z: 0
-      angle: 0.99
-      maxForce: 20
-      minForce: 20
-      maxParticlesPerSecond: 0
-      minParticlesPerSecond: 0
-      maxParticlesLife: 10
-      minParticlesLife: 8
+      angle: 180
+      maxForce: 1000
+      minForce: 500
+      maxParticlesPerSecond: 1000
+      minParticlesPerSecond: 500
+      maxParticlesLife: 2
+      minParticlesLife: 1
       particleBatch: 0
     settingsCollision:
       planes:
@@ -277,7 +277,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 83351501}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0.71700007, y: -0, z: -0, w: 0.6970731}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -287,7 +287,7 @@ Transform:
   - {fileID: 2040244667}
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -91.615, y: 0, z: 0}
 --- !u!1 &201036327
 GameObject:
   m_ObjectHideFlags: 0
