@@ -24,8 +24,8 @@ public struct PlaneC
     }
     public PlaneC(Vector3C pointA, Vector3C pointB, Vector3C pointC)
     {
-        Vector3C vectorAB = new Vector3C(pointA, pointB); // Vector from A to B
-        Vector3C vectorAC = new Vector3C(pointA, pointC); // Vector from A to C
+        Vector3C vectorAB = new Vector3C(pointA, pointB); // vector from A to B
+        Vector3C vectorAC = new Vector3C(pointA, pointC); // vector from A to C
 
         this.normal = Vector3C.Cross(vectorAB, vectorAC).normalized;
 

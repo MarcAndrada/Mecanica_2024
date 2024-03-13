@@ -13,6 +13,10 @@ public struct CapsuleC
     #endregion
 
     #region CONSTRUCTORS
+    public CapsuleC(Vector3C positionA, Vector3C positionB, float radius)
+    {
+        this.positionA = positionA; this.positionB = positionB; this.radius = radius;
+    }
     #endregion
 
     #region OPERATORS

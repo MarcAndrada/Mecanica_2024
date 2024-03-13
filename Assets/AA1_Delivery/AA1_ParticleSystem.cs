@@ -1,4 +1,5 @@
 
+using System.Drawing;
 using UnityEngine.UIElements;
 
 [System.Serializable]
@@ -35,7 +36,7 @@ public class AA1_ParticleSystem
     {
         public Vector3C Start;
         public Vector3C Direction;
-        public float angle;
+        public int angle;
         public float maxForce;
         public float minForce;
         public float maxParticlesPerSecond;
@@ -157,6 +158,8 @@ public class AA1_ParticleSystem
             float dot;
 
             settingsCannon.angle %= 360;
+            int maxTries = 1000;
+            int currentTries = 0;
             do
             {
 
@@ -166,8 +169,14 @@ public class AA1_ParticleSystem
                 dir = new Vector3C(randomX, randomY, randomZ).normalized;
 
                 dot = Vector3C.Dot(settingsCannon.Direction.normalized, dir);
+                
+                currentTries++;
 
-            } while (dot < 1 - (settingsCannon.angle / 360));
+                if (currentTries >= maxTries || settingsCannon.angle == 0)
+                    dir = settingsCannon.Direction.normalized ;
+
+
+            } while (dot < 1 - ((float)settingsCannon.angle / 180) && settingsCannon.angle != 0 && currentTries < maxTries);
 
             particles[j].forces = dir * randomForce;
 
@@ -200,18 +209,20 @@ public class AA1_ParticleSystem
 
                 particles[i].forces = Vector3C.zero;
 
-                CheckCollisions(i);
+                CheckPlaneCollisions(i);
+                CheckSphereCollisions(i);
+                CheckCapsuleCollisions(i);
             }
         }
     }
-    private void CheckCollisions(int index)
+    private void CheckPlaneCollisions(int index)
     {
         for (int i = 0; i < settingsCollision.planes.Length; i++)
-        {/*
+        {
             double distance;
 
-            Vector3C Vector = particles[index].position - settingsCollision.planes[i].position;
-            distance = Vector3C.Dot(settingsCollision.planes[i].normal, Vector);
+            Vector3C vector = particles[index].position - settingsCollision.planes[i].position;
+            distance = Vector3C.Dot(settingsCollision.planes[i].normal, vector);
 
             if (distance < 0)
             {
@@ -222,9 +233,71 @@ public class AA1_ParticleSystem
                 Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
                 particles[index].velocity = -normalVelocity + tangentVelocity;
             }
-            */
+            
         }
     }
+    private void CheckSphereCollisions(int index)
+    {
+        for (int i = 0; i < settingsCollision.spheres.Length; i++)
+        {
+            Vector3C distanceToParticle = particles[index].position - settingsCollision.spheres[i].position;
+
+            Vector3C collisionPoint = settingsCollision.spheres[i].position + distanceToParticle.normalized * settingsCollision.spheres[i].radius;
+
+            PlaneC palne = new PlaneC(collisionPoint, distanceToParticle.normalized);
+
+
+            double distance;
+
+            Vector3C vector = particles[index].position - palne.position;
+            distance = Vector3C.Dot(palne.normal, vector);
+
+            if (distance < 0)
+            {
+                particles[index].position = palne.IntersectionWithLine(new LineC(particles[index].lastPosition, particles[index].position));
+
+                float n = (particles[index].velocity * palne.normal) / palne.normal.magnitude;
+                Vector3C normalVelocity = palne.normal * n;
+                Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
+                particles[index].velocity = -normalVelocity + tangentVelocity;
+            }
+        }
+    }
+    private void CheckCapsuleCollisions(int index)
+    {
+        for (int i = 0; i < settingsCollision.capsules.Length; i++)
+        {
+            Vector3C posAtoParticle = particles[index].position - settingsCollision.capsules[i].positionA;
+
+            Vector3C posAtoPosB = settingsCollision.capsules[i].positionB - settingsCollision.capsules[i].positionA;
+
+            float dot = Vector3C.Dot(posAtoPosB, posAtoParticle);
+
+            Vector3C capsulePoint = settingsCollision.capsules[i].positionA + posAtoPosB.normalized * dot;
+
+            Vector3C distanceToParticle = (particles[index].position - capsulePoint);
+            Vector3C collisionPoint = capsulePoint + distanceToParticle.normalized * settingsCollision.capsules[i].radius;
+
+
+            PlaneC palne = new PlaneC(collisionPoint, distanceToParticle.normalized);
+
+            double distance;
+
+            Vector3C distanceBetweenParticleAndPalne = particles[index].position - palne.position;
+            distance = Vector3C.Dot(palne.normal, distanceBetweenParticleAndPalne);
+
+            if (distance < 0)
+            {
+                particles[index].position = palne.IntersectionWithLine(new LineC(particles[index].lastPosition, particles[index].position));
+
+                float n = (particles[index].velocity * palne.normal) / palne.normal.magnitude;
+                Vector3C normalVelocity = palne.normal * n;
+                Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
+                particles[index].velocity = -normalVelocity + tangentVelocity;
+            }
+        }
+    }
+
     private void DisableParticles(float dt)
     {
         for (int i = 0; i < particles.Length; i++)
