@@ -271,7 +271,7 @@ public class AA1_ParticleSystem
 
             Vector3C posAtoPosB = settingsCollision.capsules[i].positionB - settingsCollision.capsules[i].positionA;
 
-            float dot = Vector3C.Dot(posAtoPosB, posAtoParticle);
+            float dot = Vector3C.Dot(posAtoPosB.normalized, posAtoParticle);
 
             Vector3C capsulePoint = settingsCollision.capsules[i].positionA + posAtoPosB.normalized * dot;
 
