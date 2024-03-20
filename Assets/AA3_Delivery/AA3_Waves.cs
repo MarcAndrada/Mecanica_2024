@@ -30,11 +30,11 @@ public class AA3_Waves
     public void Update(float dt)
     {
         Random rnd = new Random();
-        Parallel.For(0, points.Length, (i) =>
+        for(int i = 0; i < points.Length; i++)
         {
             points[i].position = points[i].originalposition;
             points[i].position.y = rnd.Next(100) * 0.01f;
-        });
+        }
     }
 
     public void Debug()

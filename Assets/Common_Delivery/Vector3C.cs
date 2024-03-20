@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 
 [System.Serializable]
 public struct Vector3C
@@ -14,18 +13,15 @@ public struct Vector3C
     public float r { get => x; set => x = value; }
     public float g { get => y; set => y = value; }
     public float b { get => z; set => z = value; }
-    public float magnitude { 
-        get 
+    public float magnitude { get { return (float)Math.Sqrt(x * x + y * y + z * z); } }
+    public Vector3C normalized
+    {
+        get
         {
-            return (float)Math.Sqrt(x * x + y * y + z * z);
-        } 
-    }
-    public Vector3C normalized 
-    { 
-        get 
-        {
-            return new Vector3C(x / magnitude, y / magnitude, z / magnitude); 
-        } 
+            var temp = new Vector3C(x, y, z);
+            temp.Normalize();
+            return temp;
+        }
     }
 
     public static Vector3C zero { get { return new Vector3C(0, 0, 0); } }
@@ -46,31 +42,12 @@ public struct Vector3C
     {
         this.x = x; this.y = y; this.z = z;
     }
-
-    public Vector3C(Vector3C a, Vector3C b)
-    {
-        this.x = b.x - a.x; 
-        this.y = b.y - a.y; 
-        this.z = b.z - a.z;
-    }
     #endregion
 
     #region OPERATORS
-    public static Vector3C operator +(Vector3C a)
-    {
-        return new Vector3C(Math.Abs(a.x), Math.Abs(a.y), Math.Abs(a.z));
-    }
     public static Vector3C operator -(Vector3C a)
     {
-        return new Vector3C(a.x * -1, a.y * -1, a.z * -1);
-    }
-    public static bool operator ==(Vector3C a, Vector3C b)
-    {
-        return a.x == b.x && a.y == b.y && a.z == b.z;
-    }
-    public static bool operator !=(Vector3C a, Vector3C b)
-    {
-        return a.x != b.x && a.y != b.y && a.z != b.z;
+        return new Vector3C(-a.x, -a.y, -a.z);
     }
     public static Vector3C operator +(Vector3C a, Vector3C b)
     {
@@ -78,51 +55,58 @@ public struct Vector3C
     }
     public static Vector3C operator -(Vector3C a, Vector3C b)
     {
-        return new Vector3C(a.x - b.x, a.y - b.y, a.z - b.z);
+        return a + -b;
     }
-    public static float operator *(Vector3C a, Vector3C b)
+    public static Vector3C operator *(Vector3C a, Vector3C b)
     {
-        return a.x * b.x + a.y * b.y + a.z * b.z;
+        return new Vector3C(a.x * b.x, a.y * b.y, a.z * b.z);
     }
-    public static float operator /(Vector3C a, Vector3C b)
+    public static Vector3C operator /(Vector3C a, Vector3C b)
     {
-        return a.x / b.x + a.y / b.y + a.z / b.z;
+        return new Vector3C(a.x / b.x, a.y / b.y, a.z / b.z);
     }
-    public static Vector3C operator *(Vector3C a, float number)
+    public static Vector3C operator *(Vector3C a, float b)
     {
-        return new Vector3C(a.x * number, a.y * number, a.z * number);
+        return new Vector3C(a.x * b, a.y * b, a.z * b);
     }
-    public static Vector3C operator /(Vector3C a, float number)
+    public static Vector3C operator /(Vector3C a, float b)
     {
-        return new Vector3C(a.x / number, a.y / number, a.z / number);
+        return new Vector3C(a.x / b, a.y / b, a.z / b);
     }
     #endregion
 
     #region METHODS
     public void Normalize()
     {
-        x = normalized.x; y = normalized.y; z = normalized.z;  
-    }
-
-    public override bool Equals(object obj)
-    {
-        if(obj is Vector3C)
-        {
-            Vector3C other = (Vector3C)obj;
-            return other == this;
-        }
-        return false;
+        float m = this.magnitude;
+        this.x /= m;
+        this.y /= m;
+        this.z /= m;
     }
     #endregion
 
     #region FUNCTIONS
-    public static float Dot(Vector3C v1, Vector3C v2)
+    public static float Dot(Vector3C a, Vector3C b)
     {
-        return v1 * v2;
+        return a.x * b.x + a.y * b.y + a.z * b.z;
     }
-    public static Vector3C Cross(Vector3C v1, Vector3C v2)
+    public static Vector3C Cross(Vector3C a, Vector3C b)
     {
-        return new Vector3C((v1.y * v2.z - v1.z * v2.y), -(v1.x * v2.z - v1.z * v2.x), (v1.x * v2.y - v1.y * v2.x));
+        return new Vector3C(a.y * b.z - a.z * a.y, a.z * b.x - a.x * a.z, a.x * b.y - a.y * a.x);
+    }
+    public static float Distance(Vector3C a, Vector3C b)
+    {
+        return (a - b).magnitude;
+    }
+
+    public static Vector3C Lerp(Vector3C a, Vector3C b, float t)
+    {
+        return new Vector3C(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
+    }
+    public static Vector3C Reflect(Vector3C direction, Vector3C normal)
+    {
+        float num = -2f * Dot(normal, direction);
+        return new Vector3C(num * normal.x + direction.x, num * normal.y + direction.y, num * normal.z + direction.z);
     }
     #endregion
 

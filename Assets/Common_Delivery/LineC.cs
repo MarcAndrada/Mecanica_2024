@@ -16,39 +16,33 @@ public struct LineC
     {
         this.origin = origin;
         this.direction = direction;
+        this.direction.Normalize();
     }
     #endregion
 
     #region OPERATORS
-    public static bool operator ==(LineC a, LineC b)
-    {
-        return a.origin == b.origin && a.direction == b.direction;
-    }
-    public static bool operator !=(LineC a, LineC b)
-    {
-        return a.origin != b.origin && a.direction != b.direction;
-    }
     #endregion
 
     #region METHODS
-    public Vector3C NearestPointToPoint(Vector3C point)
+    public float TangentDistanceToOrigin(Vector3C point)
     {
-        Vector3C vector = point - origin;
-        float dot = Vector3C.Dot(vector, direction);
-        Vector3C nearestPoint = origin - direction * dot;
-
-        return nearestPoint;
+        Vector3C originPoint = point - origin;
+        return Vector3C.Dot(originPoint, direction);
     }
-    public Vector3C NearestPointToLine(LineC line)
+    public Vector3C PointGivenDistance(float distance)
     {
-        return line.origin;
+        return origin + direction * distance;
+    }
+    public Vector3C NearestPoint(Vector3C point)
+    {
+        return PointGivenDistance(TangentDistanceToOrigin(point));
     }
     #endregion
 
     #region FUNCTIONS
-    public static LineC CreateLinePointAPointB(Vector3C pointA, Vector3C pointB)
+    public static LineC FromTwoPoints(Vector3C start, Vector3C end)
     {
-        return new LineC(pointA, pointB - pointA);
+        return new LineC(start, end - start);
     }
     #endregion
 
