@@ -1,3 +1,7 @@
+
+using System.Drawing;
+using UnityEngine.UIElements;
+
 [System.Serializable]
 public class AA1_ParticleSystem
 {
@@ -6,6 +10,7 @@ public class AA1_ParticleSystem
     {
         public Vector3C gravity;
         public float bounce;
+        public int particlePoolCapacity;
     }
     public Settings settings;
 
@@ -14,7 +19,15 @@ public class AA1_ParticleSystem
     {
         public Vector3C PointA;
         public Vector3C PointB;
-        public float particlesPerSecond;
+        public Vector3C direction;
+        public bool randomDirection;
+        public float minForce;
+        public float maxForce;
+        public float minParticlesPerSecond;
+        public float maxParticlesPerSecond;
+        public float minParticlesLife;
+        public float maxParticlesLife;
+        public float particleBatch;
     }
     public SettingsCascade settingsCascade;
 
@@ -23,8 +36,14 @@ public class AA1_ParticleSystem
     {
         public Vector3C Start;
         public Vector3C Direction;
-        public float angle;
-        public float particlesPerSecond;
+        public int angle;
+        public float maxForce;
+        public float minForce;
+        public float maxParticlesPerSecond;
+        public float minParticlesPerSecond;
+        public float maxParticlesLife;
+        public float minParticlesLife;
+        public float particleBatch;
     }
     public SettingsCannon settingsCannon;
 
@@ -34,28 +53,265 @@ public class AA1_ParticleSystem
         public PlaneC[] planes;
         public SphereC[] spheres;
         public CapsuleC[] capsules;
+        public float collisionFactor;
     }
     public SettingsCollision settingsCollision;
 
-
+    //force = suma de fuerzas 
+    //aceleracion = fuerza/masa
+    //velocity = velocity + aceleracion * delta;
+    //Posicion = posicion + velocidad * delta;
 
     public struct Particle
     {
         public Vector3C position;
         public float size;
+        public Vector3C velocity;
+        public Vector3C acceleration;
+        public Vector3C forces;
+        public float mass;
+        public bool active;
+        public float lifeTime;
+        public Vector3C lastPosition;
     }
+
+    System.Random rnd = new System.Random();
+    Particle[] particles;
 
     public Particle[] Update(float dt)
     {
-        Particle[] particles = new Particle[10];
-        for (int i = 0; i < particles.Length; ++i)
-        {
-            particles[i].position = new Vector3C(-4.5f + i, 0.0f, 0);
-            particles[i].size = 0.1f;
-        }
+        Initialize();
+
+
+        CascadeSpawner(dt);
+        CannonSpawner(dt);
+
+        SolverEuler(dt);
+
+        DisableParticles(dt);
+
         return particles;
     }
+    private void Initialize()
+    {
+        if (particles != null)
+            return;
 
+        particles = new Particle[settings.particlePoolCapacity];
+
+    }
+
+    private void CascadeSpawner(float dt)
+    {
+        settingsCascade.particleBatch += RandomRangeFloats(settingsCascade.minParticlesPerSecond, settingsCascade.maxParticlesPerSecond) * dt; ;
+
+        for (int j = 0; j < particles.Length; j++)
+        {
+            if (particles[j].active)
+                continue;
+
+            if (settingsCascade.particleBatch < 1)
+                break;
+
+            particles[j].active = true;
+            float randomForce = RandomRangeFloats(settingsCascade.minForce, settingsCascade.maxForce);
+            Vector3C dir;
+            if (settingsCascade.randomDirection)
+            {
+                float randomX = RandomRangeFloats(-1, 1);
+                float randomY = RandomRangeFloats(-1, 1);
+                float randomZ = RandomRangeFloats(-1, 1);
+
+                dir = new Vector3C(randomX, randomY, randomZ).normalized * randomForce;
+            }
+            else
+                dir = settingsCascade.direction * randomForce;
+
+            particles[j].forces = dir + settings.gravity;
+
+            float randomLifeTime = RandomRangeFloats(settingsCascade.minParticlesLife, settingsCascade.maxParticlesLife);
+            particles[j].lifeTime = randomLifeTime;
+
+            Vector3C randPoint = settingsCascade.PointA + (settingsCascade.PointB - settingsCascade.PointA) * (float)rnd.NextDouble();
+            particles[j].position = randPoint;
+
+            settingsCascade.particleBatch--;
+        }
+
+    }
+    private void CannonSpawner(float dt)
+    {
+        settingsCannon.particleBatch += RandomRangeFloats(settingsCannon.minParticlesPerSecond, settingsCannon.maxParticlesPerSecond) * dt; ;
+
+        for (int j = 0; j < particles.Length; j++)
+        {
+            if (particles[j].active)
+                continue;
+
+            if (settingsCannon.particleBatch < 1)
+                break;
+
+            particles[j].active = true;
+            float randomForce = RandomRangeFloats(settingsCannon.minForce, settingsCannon.maxForce);
+
+            Vector3C dir;
+            float dot;
+
+            settingsCannon.angle %= 360;
+            int maxTries = 1000;
+            int currentTries = 0;
+            do
+            {
+
+                float randomX = RandomRangeFloats(-1, 1);
+                float randomY = RandomRangeFloats(-1, 1);
+                float randomZ = RandomRangeFloats(-1, 1);
+                dir = new Vector3C(randomX, randomY, randomZ).normalized;
+
+                dot = Vector3C.Dot(settingsCannon.Direction.normalized, dir);
+
+                currentTries++;
+
+                if (currentTries >= maxTries || settingsCannon.angle == 0)
+                    dir = settingsCannon.Direction.normalized;
+
+
+            } while (dot < 1 - ((float)settingsCannon.angle / 180) && settingsCannon.angle != 0 && currentTries < maxTries);
+
+            particles[j].forces = dir * randomForce;
+
+            float randomLifeTime = RandomRangeFloats(settingsCannon.minParticlesLife, settingsCannon.maxParticlesLife);
+            particles[j].lifeTime = randomLifeTime;
+
+            particles[j].position = settingsCannon.Start;
+
+            settingsCannon.particleBatch--;
+        }
+    }
+    private void SolverEuler(float dt)
+    {
+        for (int i = 0; i < particles.Length; ++i)
+        {
+            if (!particles[i].active)
+            {
+                particles[i].position = new Vector3C(1000, 1000, 1000);
+                particles[i].size = 0.025f;
+                particles[i].velocity = Vector3C.zero;
+                particles[i].mass = 1;
+            }
+            else
+            {
+                particles[i].lastPosition = particles[i].position;
+
+                particles[i].acceleration = (particles[i].forces / particles[i].mass) + settings.gravity;
+                particles[i].velocity += particles[i].acceleration * dt;
+                particles[i].position += particles[i].velocity * dt;
+
+                particles[i].forces = Vector3C.zero;
+
+                CheckPlaneCollisions(i);
+                CheckSphereCollisions(i);
+                CheckCapsuleCollisions(i);
+            }
+        }
+    }
+    private void CheckPlaneCollisions(int index)
+    {
+        for (int i = 0; i < settingsCollision.planes.Length; i++)
+        {
+            double distance;
+
+            Vector3C vector = particles[index].position - settingsCollision.planes[i].position;
+            distance = Vector3C.Dot(settingsCollision.planes[i].normal, vector);
+
+            if (distance < 0)
+            {
+                particles[index].position = settingsCollision.planes[i].IntersectionWithLine(new LineC(particles[index].lastPosition, particles[index].position));
+
+                float n = (particles[index].velocity * settingsCollision.planes[i].normal) / settingsCollision.planes[i].normal.magnitude;
+                Vector3C normalVelocity = settingsCollision.planes[i].normal * n;
+                Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
+                particles[index].velocity = -normalVelocity + tangentVelocity;
+            }
+
+        }
+    }
+    private void CheckSphereCollisions(int index)
+    {
+        for (int i = 0; i < settingsCollision.spheres.Length; i++)
+        {
+            Vector3C distanceToParticle = particles[index].position - settingsCollision.spheres[i].position;
+
+            Vector3C collisionPoint = settingsCollision.spheres[i].position + distanceToParticle.normalized * settingsCollision.spheres[i].radius;
+
+            PlaneC palne = new PlaneC(collisionPoint, distanceToParticle.normalized);
+
+
+            double distance;
+
+            Vector3C vector = particles[index].position - palne.position;
+            distance = Vector3C.Dot(palne.normal, vector);
+
+            if (distance < 0)
+            {
+                particles[index].position = palne.IntersectionWithLine(new LineC(particles[index].lastPosition, particles[index].position));
+
+                float n = (particles[index].velocity * palne.normal) / palne.normal.magnitude;
+                Vector3C normalVelocity = palne.normal * n;
+                Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
+                particles[index].velocity = -normalVelocity + tangentVelocity;
+            }
+        }
+    }
+    private void CheckCapsuleCollisions(int index)
+    {
+        for (int i = 0; i < settingsCollision.capsules.Length; i++)
+        {
+            Vector3C posAtoParticle = particles[index].position - settingsCollision.capsules[i].positionA;
+
+            Vector3C posAtoPosB = settingsCollision.capsules[i].positionB - settingsCollision.capsules[i].positionA;
+
+            float dot = Vector3C.Dot(posAtoPosB.normalized, posAtoParticle);
+
+            Vector3C capsulePoint = settingsCollision.capsules[i].positionA + posAtoPosB.normalized * dot;
+
+            Vector3C distanceToParticle = (particles[index].position - capsulePoint);
+            Vector3C collisionPoint = capsulePoint + distanceToParticle.normalized * settingsCollision.capsules[i].radius;
+
+
+            PlaneC palne = new PlaneC(collisionPoint, distanceToParticle.normalized);
+
+            double distance;
+
+            Vector3C distanceBetweenParticleAndPalne = particles[index].position - palne.position;
+            distance = Vector3C.Dot(palne.normal, distanceBetweenParticleAndPalne);
+
+            if (distance < 0)
+            {
+                particles[index].position = palne.IntersectionWithLine(new LineC(particles[index].lastPosition, particles[index].position));
+
+                float n = (particles[index].velocity * palne.normal) / palne.normal.magnitude;
+                Vector3C normalVelocity = palne.normal * n;
+                Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
+                particles[index].velocity = -normalVelocity + tangentVelocity;
+            }
+        }
+    }
+
+    private void DisableParticles(float dt)
+    {
+        for (int i = 0; i < particles.Length; i++)
+        {
+            if (particles[i].active)
+            {
+                particles[i].lifeTime -= dt;
+                if (particles[i].lifeTime <= 0)
+                {
+                    particles[i].active = false;
+                }
+            }
+        }
+    }
     public void Debug()
     {
         foreach (var item in settingsCollision.planes)
@@ -70,5 +326,10 @@ public class AA1_ParticleSystem
         {
             item.Print(Vector3C.blue);
         }
+    }
+    private float RandomRangeFloats(float min, float max)
+    {
+        float randomValue = min + ((float)rnd.NextDouble() * (max - min));
+        return randomValue;
     }
 }

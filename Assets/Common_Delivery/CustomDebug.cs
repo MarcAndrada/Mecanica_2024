@@ -69,11 +69,9 @@ public static class CustomDebug
         Color tempColor = Gizmos.color;
         Matrix4x4 tempMatrix = Gizmos.matrix;
         Color newColor = color.ToColor();
-        Gizmos.color = newColor;
-        Gizmos.DrawWireSphere(obj.position.ToUnity(), obj.radius);
         newColor.a = 0.5f;
         Gizmos.color = newColor;
-        Gizmos.DrawSphere(obj.position.ToUnity(), obj.radius);
+        Gizmos.DrawWireSphere(obj.position.ToUnity(), obj.radius);
         Gizmos.color = tempColor;
 #endif
     }
