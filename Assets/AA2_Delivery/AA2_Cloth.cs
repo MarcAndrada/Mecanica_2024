@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.UIElements;
 
 [System.Serializable]
@@ -24,6 +25,8 @@ public class AA2_Cloth
     [System.Serializable]
     public struct ClothSettings
     {
+        [Range(0f, 5f)]
+        public float maxJellyValue;
         [Header("Structural Spring")]
         public float structuralElasticCoef;
         public float structuralDamptCoef;
@@ -54,9 +57,9 @@ public class AA2_Cloth
         public Vector3C velocity;
         public Vertex(Vector3C _position)
         {
-            this.actualPosition = _position;
-            this.lastPosition = _position;
-            this.velocity = new Vector3C(0, 0, 0);
+            actualPosition = _position;
+            lastPosition = _position;
+            velocity = new Vector3C(0, 0, 0);
         }
 
         public void Euler(Vector3C force, float dt)
@@ -91,29 +94,19 @@ public class AA2_Cloth
         }
     }
 
-    private void CheckSphereCollisions(int index)
-    {
-
-
-        if (settingsCollision.sphere.IsInside(points[index].actualPosition))
-        {
-            Vector3C distanceToParticle = (points[index].actualPosition - settingsCollision.sphere.position).normalized;
-            Vector3C collisionPoint = settingsCollision.sphere.position + distanceToParticle * settingsCollision.sphere.radius;
-            PlaneC plane = new PlaneC(collisionPoint, distanceToParticle);
-
-            points[index].actualPosition = collisionPoint;
-            Vector3C tangent = points[index].velocity - plane.normal * Vector3C.Dot(plane.normal,  points[index].velocity);
-            points[index].velocity = new Vector3C(tangent.x, 0, tangent.z);
-        }
-    }
-
     private void StructuralSpring(Vector3C[] forces, int index, int vertices)
     {
+
         //STRUCTURAL VERTICAL
         if (index > vertices - 1)
         {
             float structMagnitudeY = (points[index - vertices].actualPosition - points[index].actualPosition).magnitude
                                              - clothSettings.structuralSpringLenght;
+
+            structMagnitudeY = Mathf.Clamp(structMagnitudeY, 0, clothSettings.maxJellyValue);
+
+
+
             Vector3C structForceVector = (points[index - vertices].actualPosition
                                 - points[index].actualPosition).normalized * structMagnitudeY * clothSettings.structuralElasticCoef;
 
@@ -130,6 +123,10 @@ public class AA2_Cloth
         {
             float structMagnitudeX = (points[index - 1].actualPosition - points[index].actualPosition).magnitude
                                              - clothSettings.structuralSpringLenght;
+
+            structMagnitudeX = Mathf.Clamp(structMagnitudeX, 0, clothSettings.maxJellyValue);
+
+
             Vector3C structForceVector = (points[index - 1].actualPosition
                                 - points[index].actualPosition).normalized * structMagnitudeX * clothSettings.structuralElasticCoef;
 
@@ -139,6 +136,7 @@ public class AA2_Cloth
             forces[index] += structSpringForce;
             forces[index - 1] += -structSpringForce;
         }
+
     }
     private void ShearSpring(Vector3C[] forces, int index, int vertices)
     {
@@ -147,11 +145,13 @@ public class AA2_Cloth
         {
             float shearMagnitude = (points[index - vertices + 1].actualPosition - points[index].actualPosition).magnitude
                                              - clothSettings.shearSpringLenght;
+            shearMagnitude = Mathf.Clamp(shearMagnitude, 0, clothSettings.maxJellyValue * Mathf.Sqrt(2));
+
             Vector3C shearForceVector = (points[index - vertices + 1].actualPosition
                                 - points[index].actualPosition).normalized * shearMagnitude * clothSettings.shearElasticCoef;
 
 
-            Vector3C shearDampingForce = (points[index].velocity - points[index - vertices + 1].velocity) * clothSettings.shearDamptCoef;
+            Vector3C shearDampingForce = (-points[index - vertices + 1].velocity + points[index].velocity) * clothSettings.shearDamptCoef;
             Vector3C shearSpringForce = shearForceVector * clothSettings.shearElasticCoef - shearDampingForce;
 
             forces[index] += shearSpringForce;
@@ -165,6 +165,10 @@ public class AA2_Cloth
         {
             float bendMagnitudeY = (points[index - vertices * 2].actualPosition - points[index].actualPosition).magnitude
                                              - clothSettings.bendingSpringLenght;
+
+            bendMagnitudeY = Mathf.Clamp(bendMagnitudeY, 0, clothSettings.maxJellyValue * 2);
+
+
             Vector3C bendForceVector = (points[index - vertices * 2].actualPosition
                                 - points[index].actualPosition).normalized * bendMagnitudeY * clothSettings.bendingElasticCoef;
 
@@ -179,12 +183,16 @@ public class AA2_Cloth
         //BENDING HORIZONTAL
         if (index % vertices != 0 && index % vertices != 1)
         {
-            float bendMagnitudeX = (points[index].actualPosition - points[index - 2].actualPosition).magnitude
+            float bendMagnitudeX = (points[index - 2].actualPosition - points[index].actualPosition).magnitude
                                              - clothSettings.bendingSpringLenght;
+
+            bendMagnitudeX = Mathf.Clamp(bendMagnitudeX, 0, clothSettings.maxJellyValue * 2);
+
+
             Vector3C bendForceVector = (points[index - 2].actualPosition
                                 - points[index].actualPosition).normalized * bendMagnitudeX * clothSettings.bendingElasticCoef;
 
-            Vector3C bendDampingForce = (points[index].velocity - points[index - 2].velocity) * clothSettings.bendingDamptCoef;
+            Vector3C bendDampingForce = (points[index - 2].velocity - points[index].velocity) * clothSettings.bendingDamptCoef;
             Vector3C bendSpringForce = bendForceVector * clothSettings.bendingElasticCoef - bendDampingForce;
 
 
@@ -192,6 +200,25 @@ public class AA2_Cloth
             forces[index - 2] += -bendSpringForce;
         }
     }
+    private void CheckSphereCollisions(int index)
+    {
+        if (settingsCollision.sphere.IsInside(points[index].actualPosition))
+        {
+            Vector3C particleDirection = (points[index].actualPosition - settingsCollision.sphere.position).normalized;
+            Vector3C collisionPoint = settingsCollision.sphere.position + particleDirection * (settingsCollision.sphere.radius);
+
+            points[index].actualPosition = collisionPoint;
+
+            float normalDot = (points[index].velocity * particleDirection) / particleDirection.magnitude;
+
+            Vector3C normalVelocity = particleDirection * normalDot;
+            Vector3C tangent = points[index].velocity - normalVelocity;
+            points[index].velocity = new Vector3C(tangent.x, 0, tangent.z);
+        }
+    }
+    
+
+
     public void Debug()
     {
         settingsCollision.sphere.Print(Vector3C.blue);

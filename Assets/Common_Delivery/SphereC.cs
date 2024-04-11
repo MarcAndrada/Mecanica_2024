@@ -25,7 +25,10 @@ public struct SphereC
     #region METHODS
     public bool IsInside(Vector3C point)
     {
-        float distance = (float)Math.Sqrt(((point.x - position.x) * (point.x - position.x)) + ((point.y - position.y) * (point.y - position.y)));
+        float distance = (float)Math.Sqrt(
+            ((point.x - position.x) * (point.x - position.x)) + 
+            ((point.y - position.y) * (point.y - position.y)) + 
+            ((point.z - position.z) * (point.z - position.z)));
 
         return distance <= radius;
     }
