@@ -75,7 +75,7 @@ public class AA1_ParticleSystem
         public Vector3C lastPosition;
     }
 
-    System.Random rnd = new System.Random();
+    System.Random rnd = new System.Random(); 
     Particle[] particles;
 
     public Particle[] Update(float dt)
@@ -89,7 +89,7 @@ public class AA1_ParticleSystem
         SolverEuler(dt);
 
         DisableParticles(dt);
-
+            
         return particles;
     }
     private void Initialize()
@@ -137,7 +137,7 @@ public class AA1_ParticleSystem
 
             settingsCascade.particleBatch--;
         }
-
+            
     }
     private void CannonSpawner(float dt)
     {
@@ -169,11 +169,11 @@ public class AA1_ParticleSystem
                 dir = new Vector3C(randomX, randomY, randomZ).normalized;
 
                 dot = Vector3C.Dot(settingsCannon.Direction.normalized, dir);
-
+                
                 currentTries++;
 
                 if (currentTries >= maxTries || settingsCannon.angle == 0)
-                    dir = settingsCannon.Direction.normalized;
+                    dir = settingsCannon.Direction.normalized ;
 
 
             } while (dot < 1 - ((float)settingsCannon.angle / 180) && settingsCannon.angle != 0 && currentTries < maxTries);
@@ -233,7 +233,7 @@ public class AA1_ParticleSystem
                 Vector3C tangentVelocity = particles[index].velocity - normalVelocity;
                 particles[index].velocity = -normalVelocity + tangentVelocity;
             }
-
+            
         }
     }
     private void CheckSphereCollisions(int index)
