@@ -1,3 +1,5 @@
+using UnityEngine.UIElements;
+
 [System.Serializable]
 public class AA2_Rigidbody
 {
@@ -15,9 +17,6 @@ public class AA2_Rigidbody
         public PlaneC[] planes;
     }
     public SettingsCollision settingsCollision;
-
-
-
     public struct CubeRigidbody
     {
         public Vector3C position;
@@ -31,8 +30,14 @@ public class AA2_Rigidbody
         }
     }
     public CubeRigidbody crb = new CubeRigidbody(Vector3C.zero, new(.1f,.1f,.1f), Vector3C.zero);
+    
     public void Update(float dt)
     {
+        float[] cosa = new float[9];
+        for (int i = 0; i < 9; i++)
+        {
+            cosa[i] = i;
+        }
 
     }
 
