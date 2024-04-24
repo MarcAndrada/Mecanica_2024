@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.1273174, g: 0.13414761, b: 0.12107885, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -173,35 +173,119 @@ MonoBehaviour:
   - settings:
       gravity:
         x: 0
-        y: 0
+        y: -9.8
         z: 0
-      bounce: 0
+      bounce: 0.4
     settingsCollision:
-      planes: []
-  - settings:
-      gravity:
+      planes:
+      - position:
+          x: 0
+          y: 0.5
+          z: 0
+        normal:
+          x: 0
+          y: -1
+          z: 0
+      - position:
+          x: 0
+          y: -0.5
+          z: 0
+        normal:
+          x: 0
+          y: 1
+          z: 0
+      - position:
+          x: 0.5
+          y: 0
+          z: 0
+        normal:
+          x: -1
+          y: 0
+          z: 0
+      - position:
+          x: -0.5
+          y: 0
+          z: 0
+        normal:
+          x: 0.5
+          y: 0
+          z: 0
+      - position:
+          x: 0
+          y: 0
+          z: 0.5
+        normal:
+          x: 0
+          y: 0
+          z: -0.5
+      - position:
+          x: 0
+          y: 0
+          z: -0.5
+        normal:
+          x: 0
+          y: 0
+          z: 0.5
+    crb:
+      lastPosition:
         x: 0
         y: 0
         z: 0
-      bounce: 0
-    settingsCollision:
-      planes: []
-  - settings:
-      gravity:
+      position:
         x: 0
         y: 0
         z: 0
-      bounce: 0
-    settingsCollision:
-      planes: []
-  - settings:
-      gravity:
+      acceleration:
         x: 0
         y: 0
         z: 0
-      bounce: 0
-    settingsCollision:
-      planes: []
+      linearVelocity:
+        x: 0
+        y: 0
+        z: 0
+      angularVelocity:
+        x: 20
+        y: 0
+        z: 0
+      size:
+        x: 0.1
+        y: 0.1
+        z: 0.1
+      force:
+        x: 0
+        y: 0
+        z: 0
+      euler:
+        x: 0
+        y: 0
+        z: 0
+      mass: 0.1
+      density: 1
+      vertexs:
+      - x: 0
+        y: 0
+        z: 0
+      - x: 0
+        y: 0
+        z: 0
+      - x: 0
+        y: 0
+        z: 0
+      - x: 0
+        y: 0
+        z: 0
+      - x: 0
+        y: 0
+        z: 0
+      - x: 0
+        y: 0
+        z: 0
+      - x: 0
+        y: 0
+        z: 0
+      - x: 0
+        y: 0
+        z: 0
 --- !u!1 &498822787
 GameObject:
   m_ObjectHideFlags: 0
