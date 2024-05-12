@@ -59,7 +59,7 @@ public class AA2_Rigidbody
             acceleration = (force / mass) + gravity;
             linearVelocity += acceleration * dt;
             position += linearVelocity * dt;
-            euler += angularVelocity * dt;
+            //euler += angularVelocity * dt;
 
             force = Vector3C.zero;
         }
@@ -114,7 +114,6 @@ public class AA2_Rigidbody
             vertexs[5] = new Vector3C(position.x - size.x / 2, position.y - size.y / 2, position.z + size.z / 2);
             vertexs[6] = new Vector3C(position.x + size.x / 2, position.y - size.y / 2, position.z - size.z / 2);
             vertexs[7] = new Vector3C(position.x - size.x / 2, position.y - size.y / 2, position.z - size.z / 2);
-
 
 
             MatrixC xMatrix = MatrixC.RotateX(euler.x);

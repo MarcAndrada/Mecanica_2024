@@ -234,13 +234,13 @@ MonoBehaviour:
       maxJellyValue: 1.5
       structuralElasticCoef: 70
       structuralDamptCoef: 0.8
-      structuralSpringLenght: 1
+      structuralSpringLenght: 1.2
       shearElasticCoef: 1
       shearDamptCoef: 0.8
       shearSpringLenght: 1.2
-      bendingElasticCoef: 0.8
+      bendingElasticCoef: 1
       bendingDamptCoef: 0.8
-      bendingSpringLenght: 2
+      bendingSpringLenght: 2.4
     settingsCollision:
       sphere:
         position:
