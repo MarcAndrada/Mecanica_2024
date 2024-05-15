@@ -30,6 +30,12 @@ public class AA2_CubeRenderer : MonoBehaviour
         foreach (AA2_Rigidbody rb in rigidbodies)
         {
             rb.Debug();
+            foreach (var item in rb.crb.vertexs)
+            {
+                Gizmos.DrawWireSphere(new UnityEngine.Vector3(item.x, item.y, item.z), 0.01f);
+            }
         }
+
+
     }
 }

@@ -1,5 +1,5 @@
 using System;
-using UnityEngine.UIElements;
+
 using static AA1_ParticleSystem;
 
 [System.Serializable]
@@ -59,7 +59,7 @@ public class AA2_Rigidbody
             acceleration = (force / mass) + gravity;
             linearVelocity += acceleration * dt;
             position += linearVelocity * dt;
-            //euler += angularVelocity * dt;
+            euler += angularVelocity * dt;
 
             force = Vector3C.zero;
         }
@@ -135,7 +135,6 @@ public class AA2_Rigidbody
     {
         crb.SolverEuler(dt, settings.gravity);
         crb.CheckCollisionWithPlanes(settingsCollision.planes, settings.bounce);
-
     }
 
 
@@ -146,5 +145,7 @@ public class AA2_Rigidbody
         {
             item.Print(Vector3C.red);
         }
+
+        
     }
 }
