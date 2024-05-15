@@ -87,9 +87,16 @@ public struct MatrixC
     //    return Transposed(inverse);
     //}
 
+    public static MatrixC Rotate(float x, float y, float z)
+    {
+        MatrixC result = new MatrixC();
+        return result;
+    }
     public static MatrixC RotateX(float angles)
     {
         MatrixC rotatedXMatrix = new MatrixC();
+
+        angles *= (float)Math.PI / 180;
 
         rotatedXMatrix.data = new float[3, 3];
         rotatedXMatrix.data[0, 0] = 1;
@@ -97,9 +104,9 @@ public struct MatrixC
         rotatedXMatrix.data[0, 2] = 0;
         rotatedXMatrix.data[1, 0] = 0;
         rotatedXMatrix.data[1, 1] = (float)Math.Cos(angles);
-        rotatedXMatrix.data[1, 2] = (float)Math.Sin(angles);
+        rotatedXMatrix.data[1, 2] = (float)Math.Sin(-angles);
         rotatedXMatrix.data[2, 0] = 0;
-        rotatedXMatrix.data[2, 1] = (float)-Math.Sin(angles);
+        rotatedXMatrix.data[2, 1] = (float)Math.Sin(angles);
         rotatedXMatrix.data[2, 2] = (float)Math.Cos(angles);
 
 
@@ -110,14 +117,16 @@ public struct MatrixC
     {
         MatrixC rotatedXMatrix = new MatrixC();
 
+        angles *= (float)Math.PI / 180;
+
         rotatedXMatrix.data = new float[3, 3];
         rotatedXMatrix.data[0, 0] = (float)Math.Cos(angles);
         rotatedXMatrix.data[0, 1] = 0;
-        rotatedXMatrix.data[0, 2] = (float)-Math.Sin(angles);
+        rotatedXMatrix.data[0, 2] = (float)Math.Sin(angles);
         rotatedXMatrix.data[1, 0] = 0;
         rotatedXMatrix.data[1, 1] = 1;
         rotatedXMatrix.data[1, 2] = 0;
-        rotatedXMatrix.data[2, 0] = (float)Math.Sin(angles);
+        rotatedXMatrix.data[2, 0] = (float)Math.Sin(-angles);
         rotatedXMatrix.data[2, 1] = 0;
         rotatedXMatrix.data[2, 2] = (float)Math.Cos(angles);
 
@@ -129,11 +138,13 @@ public struct MatrixC
     {
         MatrixC rotatedXMatrix = new MatrixC();
 
+        angles *= (float)Math.PI / 180;
+
         rotatedXMatrix.data = new float[3, 3];
         rotatedXMatrix.data[0, 0] = (float)Math.Cos(angles);
-        rotatedXMatrix.data[0, 1] = (float)Math.Sin(angles);
+        rotatedXMatrix.data[0, 1] = (float)Math.Sin(-angles);
         rotatedXMatrix.data[0, 2] = 0;
-        rotatedXMatrix.data[1, 0] = (float)-Math.Sin(angles);
+        rotatedXMatrix.data[1, 0] = (float)Math.Sin(angles);
         rotatedXMatrix.data[1, 1] = (float)Math.Cos(angles);
         rotatedXMatrix.data[1, 2] = 0;
         rotatedXMatrix.data[2, 0] = 0;

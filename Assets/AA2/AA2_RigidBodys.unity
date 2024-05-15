@@ -173,9 +173,9 @@ MonoBehaviour:
   - settings:
       gravity:
         x: 0
-        y: -9.8
+        y: -1
         z: 0
-      bounce: -0.2
+      bounce: 0.8
     settingsCollision:
       planes:
       - position:
@@ -207,7 +207,7 @@ MonoBehaviour:
           y: 0
           z: 0
         normal:
-          x: 0.5
+          x: 1
           y: 0
           z: 0
       - position:
@@ -217,7 +217,7 @@ MonoBehaviour:
         normal:
           x: 0
           y: 0
-          z: -0.5
+          z: -1
       - position:
           x: 0
           y: 0
@@ -225,7 +225,7 @@ MonoBehaviour:
         normal:
           x: 0
           y: 0
-          z: 0.5
+          z: 1
     crb:
       lastPosition:
         x: 0
@@ -240,11 +240,11 @@ MonoBehaviour:
         y: 0
         z: 0
       linearVelocity:
-        x: 0
+        x: -1
         y: 0
         z: 0
       angularVelocity:
-        x: 20
+        x: 0
         y: 0
         z: 0
       size:
@@ -258,7 +258,7 @@ MonoBehaviour:
       euler:
         x: 0
         y: 0
-        z: 0
+        z: 45
       mass: 0.1
       density: 1
       vertexs:

@@ -32,7 +32,7 @@ public class AA2_CubeRenderer : MonoBehaviour
             rb.Debug();
             foreach (var item in rb.crb.vertexs)
             {
-                Gizmos.DrawWireSphere(new UnityEngine.Vector3(item.x, item.y, item.z), 0.01f);
+                Gizmos.DrawWireSphere(new UnityEngine.Vector3(item.x + rb.crb.position.x, item.y + rb.crb.position.y, item.z + rb.crb.position.z), 0.01f);
             }
         }
 

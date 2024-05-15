@@ -82,7 +82,7 @@ public class AA2_Rigidbody
         }
         private bool CheckIfCollideWithPlane(PlaneC plane, Vector3C vertex)
         {
-            Vector3C directionPlaneToBody = vertex - plane.position;
+            Vector3C directionPlaneToBody = (vertex + position) - plane.position;
             double distance = Vector3C.Dot(plane.normal, directionPlaneToBody);
 
             return distance < 0;
@@ -90,12 +90,8 @@ public class AA2_Rigidbody
         }
         private void DoCollisionWithPlane(PlaneC plane, Vector3C vertex,  float bounce)
         {
-            Vector3C lastPositionDirection = (lastPosition - position).normalized;
-            Vector3C vertexLastPosition = vertex + (lastPositionDirection * Math.Abs(Vector3C.Dot(lastPosition, position)));
-
-            Vector3C newVertexPosition = plane.IntersectionWithLine(new LineC(vertexLastPosition, vertex));
-
-            Vector3C newPosition = position + (lastPositionDirection * Math.Abs(Vector3C.Dot(vertex, newVertexPosition)));
+            float planeDot = Vector3C.Dot(plane.normal, lastPosition - plane.position);
+            Vector3C newPosition = plane.IntersectionWithLine(new LineC(lastPosition, position)) + plane.normal * planeDot;
             position = newPosition;
 
             float n = (linearVelocity * plane.normal) / plane.normal.magnitude;
@@ -106,30 +102,37 @@ public class AA2_Rigidbody
 
         private void CalculateVertexsPositions()
         {
-            vertexs[0] = new Vector3C(position.x + size.x / 2, position.y + size.y / 2, position.z + size.z / 2);
-            vertexs[1] = new Vector3C(position.x - size.x / 2, position.y + size.y / 2, position.z + size.z / 2);
-            vertexs[2] = new Vector3C(position.x + size.x / 2, position.y + size.y / 2, position.z - size.z / 2);
-            vertexs[3] = new Vector3C(position.x - size.x / 2, position.y + size.y / 2, position.z - size.z / 2);
-            vertexs[4] = new Vector3C(position.x + size.x / 2, position.y - size.y / 2, position.z + size.z / 2);
-            vertexs[5] = new Vector3C(position.x - size.x / 2, position.y - size.y / 2, position.z + size.z / 2);
-            vertexs[6] = new Vector3C(position.x + size.x / 2, position.y - size.y / 2, position.z - size.z / 2);
-            vertexs[7] = new Vector3C(position.x - size.x / 2, position.y - size.y / 2, position.z - size.z / 2);
+            vertexs[0] = new Vector3C(+ size.x / 2, + size.y / 2, + size.z / 2);
+            vertexs[1] = new Vector3C(- size.x / 2, + size.y / 2, + size.z / 2);
+            vertexs[2] = new Vector3C(+ size.x / 2, + size.y / 2, - size.z / 2);
+            vertexs[3] = new Vector3C(- size.x / 2, + size.y / 2, - size.z / 2);
+            vertexs[4] = new Vector3C(+ size.x / 2, - size.y / 2, + size.z / 2);
+            vertexs[5] = new Vector3C(- size.x / 2, - size.y / 2, + size.z / 2);
+            vertexs[6] = new Vector3C(+ size.x / 2, - size.y / 2, - size.z / 2);
+            vertexs[7] = new Vector3C(- size.x / 2, - size.y / 2, - size.z / 2);
 
 
-            MatrixC xMatrix = MatrixC.RotateX(euler.x);
-            MatrixC yMatrix = MatrixC.RotateY(euler.y);
+        
             MatrixC zMatrix = MatrixC.RotateZ(euler.z);
             for (int i = 0; i < vertexs.Length; i++)
             {
-                vertexs[i].x = (xMatrix * vertexs[i]).x;
-                vertexs[i].y = (yMatrix * vertexs[i]).y;
-                vertexs[i].z = (zMatrix * vertexs[i]).z;
+                vertexs[i] = zMatrix * vertexs[i];
             }
+            MatrixC xMatrix = MatrixC.RotateX(euler.x);
+            for (int i = 0; i < vertexs.Length; i++)
+            {
+                vertexs[i] = xMatrix * vertexs[i];
 
+            }
+            MatrixC yMatrix = MatrixC.RotateY(euler.y);
+            for (int i = 0; i < vertexs.Length; i++)
+            {
+                vertexs[i] = yMatrix * vertexs[i];
 
+            }
         }
     }
-    public CubeRigidbody crb = new CubeRigidbody(Vector3C.zero, new(.1f,.1f,.1f), Vector3C.zero, 1);
+    public CubeRigidbody crb = new CubeRigidbody(Vector3C.zero, new(.1f,.1f,.1f), Vector3C.zero, 1f);
     
     public void Update(float dt)
     {
