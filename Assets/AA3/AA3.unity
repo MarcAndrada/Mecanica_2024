@@ -175,7 +175,15 @@ MonoBehaviour:
   ySize: 100
   mesh: {fileID: 0}
   waves:
-    wavesSettings: []
+    wavesSettings:
+    - amplitude: 0.3
+      frequency: 5
+      phase: 0
+      direction:
+        x: 1
+        y: 0
+        z: 1
+      speed: 20
 --- !u!33 &83351505
 MeshFilter:
   m_ObjectHideFlags: 0
