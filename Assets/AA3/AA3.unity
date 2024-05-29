@@ -175,15 +175,23 @@ MonoBehaviour:
   ySize: 100
   mesh: {fileID: 0}
   waves:
+    buoySettings:
+      buoyancyCoefficient: 1
+      buoyVelocity: 1
+      mass: 1
+      waterDensity: 1
+      gravity: -1
     buoy:
       position:
         x: 0
         y: 0
         z: 0
-      radius: 0.2
+      radius: 0.5
     settings:
-      waterDensity: 0
-      gravity: 0
+      gravity:
+        x: 0
+        y: 0
+        z: 0
     wavesSettings:
     - amplitude: 1
       frequency: 20
