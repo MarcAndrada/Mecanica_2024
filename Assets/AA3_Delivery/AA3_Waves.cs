@@ -1,13 +1,24 @@
 using System;
-using System.Threading.Tasks;
+using UnityEngine.UIElements;
 
 [System.Serializable]
 public class AA3_Waves
 {
+
+    public struct BuoySettings
+    {
+        public float boutancyCoefficient;
+        public float bouyVelocity;
+        public float mass;
+    }
+    public BuoySettings buoySettings;
+    public SphereC buoy;
+
     [System.Serializable]
     public struct Settings
     {
-
+        public float waterDensity;
+        public float gravity;
     }
     public Settings settings;
     [System.Serializable]
@@ -42,37 +53,56 @@ public class AA3_Waves
     {
         elapsedTime += dt;
 
-        Random rnd = new Random();
-        for(int i = 0; i < points.Length; i++)
+        buoy.position.y = GetWaveHeight(buoy.position.x, buoy.position.z);
+
+
+        for (int i = 0; i < points.Length; i++)
         {
             points[i].position = points[i].originalposition;
-            points[i].position.y = rnd.Next(100) * 0.01f;
+
 
             Vector3C position = Vector3C.zero;
 
             for (int j = 0; j < wavesSettings.Length; j++)
             {
-
                 float k = 2 * (float)Math.PI / wavesSettings[j].frequency;
 
                 position.x += points[i].originalposition.x + wavesSettings[j].amplitude * k
-                    * (float)Math.Cos(k * (points[i].originalposition * wavesSettings[j].direction + (elapsedTime * wavesSettings[j].speed))
+                    * (float)Math.Cos(k * (points[i].originalposition * wavesSettings[j].direction + elapsedTime * wavesSettings[j].speed)
                     + wavesSettings[j].phase) * wavesSettings[j].direction.x;
 
                 position.z += points[i].originalposition.z + wavesSettings[j].amplitude * k
-                    * (float)Math.Cos(k * (points[i].originalposition * wavesSettings[j].direction + (elapsedTime * wavesSettings[j].speed))
+                    * (float)Math.Cos(k * (points[i].originalposition * wavesSettings[j].direction + elapsedTime * wavesSettings[j].speed)
                     + wavesSettings[j].phase) * wavesSettings[j].direction.z;
 
                 position.y += wavesSettings[j].amplitude
-                    * (float)Math.Sin(k * (points[i].originalposition * wavesSettings[j].direction + (elapsedTime * wavesSettings[j].speed))
+                    * (float)Math.Sin(k * (points[i].originalposition * wavesSettings[j].direction + elapsedTime * wavesSettings[j].speed)
                     + wavesSettings[j].phase);
             }
+
             points[i].position = position;
+            //UnityEngine.Debug.Log("Position: " + points[i].position.y);
+
         }
+    }
+    public float GetWaveHeight(float x, float z)
+    {
+        float height = 0;
+
+        for (int i = 0; i < wavesSettings.Length; i++)
+        {
+            float k = 2 * (float)Math.PI / wavesSettings[i].frequency;
+            height += wavesSettings[i].amplitude
+                    * (float)Math.Sin(k * (new Vector3C(x, 0 ,z) * wavesSettings[i].direction + elapsedTime * wavesSettings[i].speed)
+                    + wavesSettings[i].phase);
+        }
+
+        return height;
     }
 
     public void Debug()
     {
+        buoy.Print(Vector3C.green);
         if(points != null)
         foreach (var item in points)
         {
