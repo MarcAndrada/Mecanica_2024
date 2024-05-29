@@ -180,7 +180,7 @@ MonoBehaviour:
       buoyVelocity: 1
       mass: 1
       waterDensity: 1
-      gravity: -1
+      gravity: -9.81
     buoy:
       position:
         x: 0

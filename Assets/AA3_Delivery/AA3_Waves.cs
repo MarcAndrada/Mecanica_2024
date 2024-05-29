@@ -51,24 +51,18 @@ public class AA3_Waves
     {
         elapsedTime = 0.0f;
     }
-    public float GetWaveHeight(float x, float z)
-    {
-        float height = 0;
-
-        for (int i = 0; i < wavesSettings.Length; i++)
-        {
-            float k = 2 * (float)Math.PI / wavesSettings[i].frequency;
-            height += wavesSettings[i].amplitude
-                    * (float)Math.Sin(k * (new Vector3C(x, 0, z) * wavesSettings[i].direction + elapsedTime * wavesSettings[i].speed)
-                    + wavesSettings[i].phase);
-        }
-
-        return height;
-    }
 
     public void Update(float dt)
     {
         elapsedTime += dt;
+
+        WaveMovement();
+
+        BuoyForce(dt);
+    }
+
+    private void WaveMovement()
+    {
 
         for (int i = 0; i < points.Length; i++)
         {
@@ -90,10 +84,12 @@ public class AA3_Waves
                     * (float)Math.Sin(k * (points[i].originalposition * wavesSettings[j].direction + elapsedTime * wavesSettings[j].speed)
                     + wavesSettings[j].phase);
             }
-
-
         }
 
+    }
+
+    private void BuoyForce(float dt)
+    {
         float waveHeight = GetWaveHeight(buoy.position.x, buoy.position.z);
         float inmersiveHeight = waveHeight - buoy.position.y - buoy.radius;
         float volume = ((float)Math.PI * (float)Math.Pow(inmersiveHeight, 2) / 3) * (3 * buoy.radius - inmersiveHeight);
@@ -103,6 +99,20 @@ public class AA3_Waves
         buoySettings.buoyVelocity += acceleration * dt;
 
         buoy.position.y += buoySettings.buoyVelocity * dt;
+    }
+
+    private float GetWaveHeight(float x, float z)
+    {
+        float height = 0;
+
+        for (int i = 0; i < wavesSettings.Length; i++)
+        {
+            float k = 2 * (float)Math.PI / wavesSettings[i].frequency;
+
+            height += wavesSettings[i].amplitude * (float)Math.Sin(k * (new Vector3C(x, 0, z) * wavesSettings[i].direction + elapsedTime * wavesSettings[i].speed) + wavesSettings[i].phase);
+        }
+
+        return height;
     }
     public void Debug()
     {
